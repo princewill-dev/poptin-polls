@@ -14,7 +14,13 @@ export const csrf = () => axios.get(import.meta.env.VITE_API_URL + '/sanctum/csr
 });
 
 api.interceptors.request.use(config => {
-    // Axios strips X-XSRF-TOKEN on cross-origin requests (port 3000 -> 8000).
+    // 1. Core Token: Pull from localStorage for API Auth
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // 2. Cookie Support: Axios strips X-XSRF-TOKEN on cross-origin requests.
     const match = document.cookie.match(new RegExp('(^|;\\s*)XSRF-TOKEN=([^;]*)'));
     if (match) {
         config.headers['X-XSRF-TOKEN'] = decodeURIComponent(match[2]);

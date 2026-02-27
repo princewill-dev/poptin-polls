@@ -134,9 +134,7 @@ async function handleRegister() {
   error.value = "";
 
   try {
-    await csrf();
-    const response = await api.post("/register", form);
-    authStore.user = response.data.user;
+    await authStore.register(form);
     router.push({ name: "Home" });
   } catch (e) {
     if (e.response && e.response.status === 422) {

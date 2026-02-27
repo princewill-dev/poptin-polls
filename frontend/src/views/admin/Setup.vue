@@ -192,18 +192,13 @@ async function handleSetup() {
   error.value = "";
 
   try {
-    const response = await api.post("/admin-setup", form);
-
-    // Auth is handled server side initially, let's fetch user into pinia
-    await authStore.fetchUser(true);
-
+    await authStore.setupAdmin(form);
     router.push({ name: "AdminDashboard" });
   } catch (e) {
-    error.value =
-      e.response?.data?.message || "Setup failed. Please check inputs.";
-    if (e.response?.data?.errors) {
-      const firstError = Object.values(e.response.data.errors)[0];
-      error.value = Array.isArray(firstError) ? firstError[0] : firstError;
+    if (e.response && e.response.status === 422) {
+      error.value = Object.values(e.response.data.errors).flat().join(" ");
+    } else {
+      error.value = "Setup failed. Please try again.";
     }
   } finally {
     loading.value = false;

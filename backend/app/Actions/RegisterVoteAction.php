@@ -12,23 +12,32 @@ class RegisterVoteAction
 {
     public function execute(Poll $poll, array $data): Vote
     {
-        $deviceUuid = $data['device_uuid'];
         $optionId = $data['option_id'];
+        $ipAddress = request()->ip();
 
         // Validate option belongs to poll
         $option = Option::where('id', $optionId)->where('poll_id', $poll->id)->firstOrFail();
 
-        // Check for existing vote
-        if (Vote::where('poll_id', $poll->id)->where('device_uuid', $deviceUuid)->exists()) {
+        // Check for existing vote by IP or User (if logged in)
+        $query = Vote::where('poll_id', $poll->id)
+            ->where(function ($q) use ($ipAddress) {
+                $q->where('ip_address', $ipAddress);
+                
+                if (auth('sanctum')->check()) {
+                    $q->orWhere('user_id', auth('sanctum')->id());
+                }
+            });
+
+        if ($query->exists()) {
             throw ValidationException::withMessages([
-                'device_uuid' => ['You have already voted on this poll.']
+                'vote' => ['You have already voted on this poll.']
             ]);
         }
 
         $vote = Vote::create([
             'poll_id' => $poll->id,
             'option_id' => $option->id,
-            'device_uuid' => $deviceUuid,
+            'ip_address' => $ipAddress,
             'user_id' => auth('sanctum')->id(),
         ]);
 

@@ -213,7 +213,6 @@
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import api, { csrf } from "../services/api";
-import { getDeviceUUID } from "../utils/device";
 
 const route = useRoute();
 const poll = ref(null);
@@ -237,12 +236,8 @@ function getPercentage(votes) {
 }
 
 onMounted(async () => {
-  const uuid = getDeviceUUID();
-
   try {
-    const response = await api.get(
-      `/polls/${route.params.slug}?device_uuid=${uuid}`,
-    );
+    const response = await api.get(`/polls/${route.params.slug}`);
     poll.value = response.data;
 
     // Prioritize backend state for hasVoted
@@ -306,10 +301,8 @@ async function submitVote() {
   voting.value = true;
   try {
     await csrf();
-    const uuid = getDeviceUUID();
     await api.post(`/polls/${poll.value.slug}/vote`, {
       option_id: selectedOption.value,
-      device_uuid: uuid,
     });
 
     hasVoted.value = true;
@@ -320,7 +313,7 @@ async function submitVote() {
     localStorage.setItem("voted_polls", JSON.stringify(votedPolls));
   } catch (e) {
     error.value = e.response?.data?.message || "Error recording vote.";
-    if (e.response?.status === 422 && e.response?.data?.errors?.device_uuid) {
+    if (e.response?.status === 422 && e.response?.data?.errors?.vote) {
       hasVoted.value = true; // Mark as voted if backend says they did
       alert("You have already voted on this poll.");
     }

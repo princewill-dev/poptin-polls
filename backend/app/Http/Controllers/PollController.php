@@ -6,6 +6,7 @@ use App\Actions\CreatePollAction;
 use App\Http\Requests\StorePollRequest;
 use App\Models\Poll;
 use Illuminate\Http\Request;
+use App\Models\Vote;
 
 class PollController extends Controller
 {
@@ -40,14 +41,17 @@ class PollController extends Controller
             $query->withCount('votes');
         }]);
 
-        $deviceUuid = $request->query('device_uuid');
+        $ipAddress = $request->ip();
         $hasVoted = false;
 
-        if ($deviceUuid) {
-            $hasVoted = \App\Models\Vote::where('poll_id', $poll->id)
-                ->where('device_uuid', $deviceUuid)
-                ->exists();
-        }
+        $hasVoted = Vote::where('poll_id', $poll->id)
+            ->where(function ($query) use ($ipAddress) {
+                $query->where('ip_address', $ipAddress);
+                if (auth('sanctum')->check()) {
+                    $query->orWhere('user_id', auth('sanctum')->id());
+                }
+            })
+            ->exists();
 
         return response()->json([
             ...$poll->toArray(),

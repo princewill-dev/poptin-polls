@@ -13,7 +13,6 @@ class VoteController extends Controller
     {
         $data = $request->validate([
             'option_id' => ['required', 'integer', 'exists:options,id'],
-            'device_uuid' => ['required', 'string', 'max:255'],
         ]);
 
         try {

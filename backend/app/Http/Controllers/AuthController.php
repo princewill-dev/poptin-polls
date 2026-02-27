@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -18,15 +19,21 @@ class AuthController extends Controller
         $user = \App\Models\User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
+            'password' => Hash::make($validated['password']),
             'is_admin' => false,
         ]);
 
         Auth::login($user);
-        $request->session()->regenerate();
+        if ($request->hasSession()) {
+            $request->session()->regenerate();
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'user' => $user,
+            'access_token' => $token,
+            'token_type' => 'Bearer',
             'message' => 'Registered successfully'
         ], 201);
     }
@@ -39,10 +46,17 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
+            if ($request->hasSession()) {
+                $request->session()->regenerate();
+            }
+
+            $user = Auth::user();
+            $token = $user->createToken('auth_token')->plainTextToken;
 
             return response()->json([
-                'user' => Auth::user(),
+                'user' => $user,
+                'access_token' => $token,
+                'token_type' => 'Bearer',
                 'message' => 'Logged in successfully'
             ]);
         }
@@ -54,10 +68,17 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        // Revoke token
+        if ($request->user()) {
+            $request->user()->currentAccessToken()->delete();
+        }
+
         Auth::guard('web')->logout();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
 
         return response()->json(['message' => 'Logged out successfully']);
     }
@@ -88,15 +109,21 @@ class AuthController extends Controller
         $user = \App\Models\User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
+            'password' => Hash::make($validated['password']),
             'is_admin' => true,
         ]);
 
         Auth::login($user);
-        $request->session()->regenerate();
+        if ($request->hasSession()) {
+            $request->session()->regenerate();
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'user' => $user,
+            'access_token' => $token,
+            'token_type' => 'Bearer',
             'message' => 'Admin account created successfully'
         ], 201);
     }
