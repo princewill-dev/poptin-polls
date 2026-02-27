@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -90,13 +91,13 @@ class AuthController extends Controller
 
     public function adminExists()
     {
-        $exists = \App\Models\User::where('is_admin', true)->exists();
+        $exists = User::where('is_admin', true)->exists();
         return response()->json(['exists' => $exists]);
     }
 
     public function setupAdmin(Request $request)
     {
-        if (\App\Models\User::where('is_admin', true)->exists()) {
+        if (User::where('is_admin', true)->exists()) {
             return response()->json(['message' => 'Admin account already exists.'], 403);
         }
 
@@ -106,7 +107,7 @@ class AuthController extends Controller
             'password' => ['required', 'min:8', 'confirmed'],
         ]);
 
-        $user = \App\Models\User::create([
+        $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
