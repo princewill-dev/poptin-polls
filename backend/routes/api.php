@@ -27,8 +27,8 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     // Admin Poll Management
     Route::get('/polls', [PollController::class, 'index']);
     Route::post('/polls', [PollController::class, 'store']);
-    Route::put('/polls/{poll}', [PollController::class, 'update']);
-    Route::delete('/polls/{poll}', [PollController::class, 'destroy']);
-    Route::get('/polls/{poll}/admin', [PollController::class, 'adminShow']);
-    Route::patch('/polls/{poll}/toggle-status', [PollController::class, 'toggleStatus']);
+    Route::put('/polls/{poll:id}', [PollController::class, 'update']);
+    Route::delete('/polls/{poll:id}', [PollController::class, 'destroy']);
+    Route::get('/polls/{poll:id}/admin', [PollController::class, 'adminShow']);
+    Route::patch('/polls/{poll:id}/toggle-status', [PollController::class, 'toggleStatus']);
 });
