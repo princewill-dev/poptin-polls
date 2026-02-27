@@ -1,0 +1,42 @@
+# OS files
+.DS_Store
+Thunbs.db
+
+# Laravel Backend
+/backend/vendor/
+/backend/node_modules/
+/backend/public/storage
+/backend/public/hot
+/backend/public/mix-manifest.json
+/backend/storage/*.key
+/backend/.env
+/backend/.phpunit.result.cache
+/backend/database.sqlite
+/backend/database.sqlite-shm
+/backend/database.sqlite-wal
+
+database.sqlite
+database.sqlite-shm
+database.sqlite-wal
+
+# Vue Frontend
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.*.local
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/pnpm-debug.log*
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+
+Dockerfile.prod
+prod.yml
+supervisord.prod.conf

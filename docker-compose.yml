@@ -1,0 +1,48 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: poptin_backend
+    restart: unless-stopped
+    volumes:
+      - ./backend:/var/www/html
+    ports:
+      - "8005:8005"
+    working_dir: /var/www/html
+    environment:
+      - DB_CONNECTION=sqlite
+    depends_on:
+      - frontend
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: poptin_frontend
+    restart: unless-stopped
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3005:3005"
+    working_dir: /app
+    environment:
+      - VITE_API_URL=http://localhost:8005
+
+  reverb:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: poptin_reverb
+    restart: unless-stopped
+    volumes:
+      - ./backend:/var/www/html
+    ports:
+      - "8007:8007"
+    working_dir: /var/www/html
+    command: php artisan reverb:start --host="0.0.0.0" --port="8007" --debug
+    environment:
+      - DB_CONNECTION=sqlite
+    depends_on:
+      - backend
