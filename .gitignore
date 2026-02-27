@@ -40,3 +40,6 @@ database.sqlite-wal
 Dockerfile.prod
 prod.yml
 supervisord.prod.conf
+
+.env
+/frontend/.env.production
