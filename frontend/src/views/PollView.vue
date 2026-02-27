@@ -241,7 +241,7 @@ onMounted(async () => {
 
   try {
     const response = await api.get(
-      `/polls/${route.params.id}?device_uuid=${uuid}`,
+      `/polls/${route.params.slug}?device_uuid=${uuid}`,
     );
     poll.value = response.data;
 
@@ -253,8 +253,8 @@ onMounted(async () => {
       const votedPolls = JSON.parse(
         localStorage.getItem("voted_polls") || "[]",
       );
-      if (!votedPolls.includes(route.params.id)) {
-        votedPolls.push(route.params.id);
+      if (!votedPolls.includes(route.params.slug)) {
+        votedPolls.push(route.params.slug);
         localStorage.setItem("voted_polls", JSON.stringify(votedPolls));
       }
     } else {
@@ -264,7 +264,7 @@ onMounted(async () => {
       const votedPolls = JSON.parse(
         localStorage.getItem("voted_polls") || "[]",
       );
-      const index = votedPolls.indexOf(route.params.id);
+      const index = votedPolls.indexOf(route.params.slug);
       if (index > -1) {
         votedPolls.splice(index, 1);
         localStorage.setItem("voted_polls", JSON.stringify(votedPolls));
@@ -307,7 +307,7 @@ async function submitVote() {
   try {
     await csrf();
     const uuid = getDeviceUUID();
-    await api.post(`/polls/${poll.value.id}/vote`, {
+    await api.post(`/polls/${poll.value.slug}/vote`, {
       option_id: selectedOption.value,
       device_uuid: uuid,
     });
@@ -316,7 +316,7 @@ async function submitVote() {
 
     // Save to local storage to persist state across reloads
     const votedPolls = JSON.parse(localStorage.getItem("voted_polls") || "[]");
-    votedPolls.push(route.params.id);
+    votedPolls.push(route.params.slug);
     localStorage.setItem("voted_polls", JSON.stringify(votedPolls));
   } catch (e) {
     error.value = e.response?.data?.message || "Error recording vote.";

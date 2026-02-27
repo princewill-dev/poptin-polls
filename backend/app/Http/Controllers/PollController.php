@@ -33,18 +33,18 @@ class PollController extends Controller
         return response()->json($poll, 201);
     }
 
-    public function show(Request $request, string $id)
+    public function show(Request $request, Poll $poll)
     {
         // Public endpoint to view a poll and its options with current votes
-        $poll = Poll::with(['options' => function($query) {
+        $poll->load(['options' => function($query) {
             $query->withCount('votes');
-        }])->findOrFail($id);
+        }]);
 
         $deviceUuid = $request->query('device_uuid');
         $hasVoted = false;
 
         if ($deviceUuid) {
-            $hasVoted = \App\Models\Vote::where('poll_id', $id)
+            $hasVoted = \App\Models\Vote::where('poll_id', $poll->id)
                 ->where('device_uuid', $deviceUuid)
                 ->exists();
         }

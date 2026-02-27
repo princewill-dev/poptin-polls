@@ -68,6 +68,24 @@
                 >Paused</span
               >
             </div>
+            <div class="px-4 pb-5 sm:px-6">
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Public Share Link</label>
+              <div class="flex gap-2">
+                 <input 
+                   type="text" 
+                   readonly 
+                   :value="getShareUrl(poll.slug)"
+                   class="block w-full rounded-md border-slate-300 bg-slate-50 shadow-sm text-sm p-2 border"
+                   @click="$event.target.select()"
+                 />
+                 <button 
+                   @click="copyLink(poll.slug)"
+                   class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors text-sm font-medium"
+                 >
+                    Copy
+                 </button>
+              </div>
+            </div>
             <div class="border-t border-slate-200 px-4 py-5 sm:p-0">
               <dl class="sm:divide-y sm:divide-slate-200">
                 <div
@@ -260,5 +278,18 @@ async function refreshPoll() {
   } catch (e) {
     console.error("Failed to refresh poll data:", e);
   }
+}
+
+function getShareUrl(slug) {
+  return `${window.location.origin}/polls/${slug}`;
+}
+
+function copyLink(slug) {
+  const url = getShareUrl(slug);
+  navigator.clipboard.writeText(url).then(() => {
+    alert("Link copied to clipboard!");
+  }).catch(() => {
+    alert("Failed to copy link. Please copy it manually.");
+  });
 }
 </script>

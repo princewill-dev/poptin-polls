@@ -9,14 +9,12 @@ use Illuminate\Validation\ValidationException;
 
 class VoteController extends Controller
 {
-    public function store(Request $request, string $pollId, RegisterVoteAction $action)
+    public function store(Request $request, Poll $poll, RegisterVoteAction $action)
     {
         $data = $request->validate([
             'option_id' => ['required', 'integer', 'exists:options,id'],
             'device_uuid' => ['required', 'string', 'max:255'],
         ]);
-
-        $poll = Poll::findOrFail($pollId);
 
         try {
             $action->execute($poll, $data);

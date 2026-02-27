@@ -14,7 +14,8 @@ class PollSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin = User::first(); // Grab first user to act as creator
+        $this->command->info('Starting PollSeeder...');
+        $admin = User::first();
 
         $polls = [
             [
@@ -45,6 +46,7 @@ class PollSeeder extends Seeder
                 [
                     'user_id' => $admin ? $admin->id : null,
                     'is_active' => true,
+                    'slug' => str_pad(random_int(0, 99999999), 8, '0', STR_PAD_LEFT),
                 ]
             );
 

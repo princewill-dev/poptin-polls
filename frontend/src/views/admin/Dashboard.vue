@@ -82,7 +82,41 @@
                     >
                       Create a New Poll
                     </h3>
-                    <form @submit.prevent="createPoll" class="space-y-4 w-full">
+                    <div v-if="successCreatedPoll" class="space-y-4 py-4">
+                      <div class="bg-green-50 p-4 rounded-lg flex items-center gap-3">
+                        <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <p class="text-sm font-medium text-green-800">Poll created successfully!</p>
+                      </div>
+                      <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Shareable Link</label>
+                        <div class="flex gap-2">
+                           <input 
+                             type="text" 
+                             readonly 
+                             :value="getShareUrl(successCreatedPoll.slug)"
+                             class="block w-full rounded-md border-slate-300 bg-white shadow-sm text-sm p-2 border"
+                             @click="$event.target.select()"
+                           />
+                           <button 
+                             @click="copyLink(successCreatedPoll.slug)"
+                             class="bg-indigo-600 text-white px-3 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+                           >
+                              Copy
+                           </button>
+                        </div>
+                      </div>
+                      <div class="pt-4 flex justify-end">
+                        <button
+                          @click="closeCreateModal"
+                          class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
+                        >
+                          Done
+                        </button>
+                      </div>
+                    </div>
+                    <form v-else @submit.prevent="createPoll" class="space-y-4 w-full">
                       <div>
                         <label class="block text-sm font-medium text-slate-700"
                           >Question</label
@@ -232,10 +266,29 @@
                   class="flex flex-wrap items-center gap-2 pt-4 border-t border-slate-100"
                 >
                   <router-link
-                    :to="{ name: 'AdminPollView', params: { id: poll.id } }"
+                    :to="{ name: 'PollView', params: { slug: poll.slug } }"
+                    target="_blank"
                     class="flex-1 text-center rounded-lg bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors"
                   >
-                    View Poll
+                    Public Link
+                  </router-link>
+                  <button
+                    @click="copyLink(poll.slug)"
+                    class="rounded-lg bg-indigo-600 p-2 text-white hover:bg-indigo-700 transition-colors"
+                    title="Copy Share Link"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m-3 3h3m-3 4h3m-6 4h.01"></path>
+                    </svg>
+                  </button>
+                  <router-link
+                    :to="{ name: 'AdminPollView', params: { id: poll.id } }"
+                    class="rounded-lg bg-slate-100 p-2 text-slate-600 hover:bg-slate-200 transition-colors"
+                    title="View Analytics"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
                   </router-link>
                   <button
                     @click="toggleStatus(poll)"
@@ -518,6 +571,8 @@ const loading = ref(false);
 const showModal = ref(false);
 const showEditModal = ref(false);
 
+const successCreatedPoll = ref(null);
+
 const newPoll = ref({
   question: "",
   options: ["", ""],
@@ -655,14 +710,34 @@ async function createPoll() {
   loading.value = true;
   try {
     const response = await api.post("/polls", newPoll.value);
-    // After creating a poll, re-fetch to get all relationships structured uniformly
+    // Set success state to show link
+    successCreatedPoll.value = response.data;
+    
+    // Refresh list
     await fetchPolls();
     newPoll.value = { question: "", options: ["", ""] };
-    showModal.value = false;
   } catch (e) {
     alert(e.response?.data?.message || "Error creating poll");
   } finally {
     loading.value = false;
   }
+}
+
+function closeCreateModal() {
+  showModal.value = false;
+  successCreatedPoll.value = null;
+}
+
+function getShareUrl(slug) {
+  return `${window.location.origin}/polls/${slug}`;
+}
+
+function copyLink(slug) {
+  const url = getShareUrl(slug);
+  navigator.clipboard.writeText(url).then(() => {
+    alert("Link copied to clipboard!");
+  }).catch(() => {
+    alert("Failed to copy link. Please copy it manually.");
+  });
 }
 </script>

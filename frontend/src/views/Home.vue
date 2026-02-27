@@ -83,7 +83,7 @@
           </div>
 
           <router-link
-            :to="`/polls/${poll.id}`"
+            :to="`/polls/${poll.slug}`"
             class="mt-4 flex justify-center w-full bg-indigo-50 text-indigo-700 hover:bg-indigo-100 py-2 border border-transparent rounded-md text-sm font-medium transition-colors"
           >
             View & Vote

@@ -13,6 +13,7 @@ class CreatePollAction
             $poll = Poll::create([
                 'question' => $data['question'],
                 'user_id' => $userId,
+                'slug' => str_pad(random_int(0, 99999999), 8, '0', STR_PAD_LEFT),
             ]);
 
             $options = collect($data['options'])->map(fn ($text) => ['text' => $text]);

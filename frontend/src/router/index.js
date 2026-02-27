@@ -8,7 +8,7 @@ const routes = [
     component: () => import('../views/Home.vue'),
   },
   {
-    path: '/polls/:id',
+    path: '/polls/:slug',
     name: 'PollView',
     component: () => import('../views/PollView.vue'),
   },
