@@ -40,14 +40,16 @@ class PollSeeder extends Seeder
         ];
 
         foreach ($polls as $pollData) {
-            $poll = Poll::create([
-                'user_id' => $admin ? $admin->id : null,
-                'question' => $pollData['question'],
-                'is_active' => true,
-            ]);
+            $poll = Poll::firstOrCreate(
+                ['question' => $pollData['question']],
+                [
+                    'user_id' => $admin ? $admin->id : null,
+                    'is_active' => true,
+                ]
+            );
 
             foreach ($pollData['options'] as $optionText) {
-                Option::create([
+                Option::firstOrCreate([
                     'poll_id' => $poll->id,
                     'text' => $optionText,
                 ]);

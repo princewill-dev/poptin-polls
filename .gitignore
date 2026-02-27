@@ -43,3 +43,5 @@ supervisord.prod.conf
 
 .env
 /frontend/.env.production
+/backend/.env.production
+/backend/database/data/*.sqlite
