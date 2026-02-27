@@ -20,6 +20,7 @@ class PollFactory extends Factory
             'user_id' => \App\Models\User::factory(),
             'question' => fake()->sentence() . '?',
             'is_active' => true,
+            'slug' => str_pad(random_int(0, 99999999), 8, '0', STR_PAD_LEFT),
         ];
     }
 }

@@ -67,17 +67,17 @@ class PollTest extends TestCase
         $deviceUuid = Str::uuid()->toString();
 
         // Initially should be false
-        $this->getJson("/api/polls/{$poll->id}?device_uuid={$deviceUuid}")
+        $this->getJson("/api/polls/{$poll->slug}?device_uuid={$deviceUuid}")
              ->assertJsonPath('has_voted', false);
 
         // Vote
-        $this->postJson("/api/polls/{$poll->id}/vote", [
+        $this->postJson("/api/polls/{$poll->slug}/vote", [
             'option_id' => $option->id,
             'device_uuid' => $deviceUuid,
         ]);
 
         // Now should be true
-        $this->getJson("/api/polls/{$poll->id}?device_uuid={$deviceUuid}")
+        $this->getJson("/api/polls/{$poll->slug}?device_uuid={$deviceUuid}")
              ->assertJsonPath('has_voted', true);
     }
 
@@ -89,7 +89,7 @@ class PollTest extends TestCase
 
         $deviceUuid = Str::uuid()->toString();
 
-        $response = $this->postJson("/api/polls/{$poll->id}/vote", [
+        $response = $this->postJson("/api/polls/{$poll->slug}/vote", [
             'option_id' => $option->id,
             'device_uuid' => $deviceUuid,
         ]);
@@ -114,13 +114,13 @@ class PollTest extends TestCase
         $deviceUuid = Str::uuid()->toString();
 
         // First vote
-        $this->postJson("/api/polls/{$poll->id}/vote", [
+        $this->postJson("/api/polls/{$poll->slug}/vote", [
             'option_id' => $option1->id,
             'device_uuid' => $deviceUuid,
         ])->assertStatus(200);
 
         // Second vote attempt from same device
-        $response = $this->postJson("/api/polls/{$poll->id}/vote", [
+        $response = $this->postJson("/api/polls/{$poll->slug}/vote", [
             'option_id' => $option2->id,
             'device_uuid' => $deviceUuid,
         ]);
